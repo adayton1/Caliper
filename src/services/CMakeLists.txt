@@ -116,6 +116,10 @@ if (CALIPER_HAVE_CRAYPAT)
   add_subdirectory(craypat)
 endif()
 
+if (CALIPER_HAVE_HPCTOOLKIT
+  add_subdirectory(hpctoolkit)
+endif()
+
 if (CALIPER_BUILD_TESTING)
   add_subdirectory(templates)
 endif()

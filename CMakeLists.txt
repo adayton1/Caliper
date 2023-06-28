@@ -78,6 +78,7 @@ add_caliper_option(WITH_PCP       "Enable performance co-pilot support" FALSE)
 add_caliper_option(WITH_VARIORUM  "Enable Variorum support" FALSE)
 add_caliper_option(WITH_UMPIRE    "Enable Umpire statistics support" FALSE)
 add_caliper_option(WITH_CRAYPAT   "Enable CrayPAT region forwarding support" FALSE)
+add_caliper_option(WITH_HPCTOOLKIT "Enable HPCToolkit support" FALSE)
 
 add_caliper_option(USE_EXTERNAL_GOTCHA "Use pre-installed gotcha instead of building our own" FALSE)
 
@@ -461,6 +462,18 @@ if (WITH_UMPIRE)
   list(APPEND CALIPER_EXTERNAL_LIBS umpire)
 endif()
 
+if (WITH_HPCTOOLKIT)
+  include(FindHPCToolkit)
+  if (HPCTOOLKIT_FOUND)
+    set(CALIPER_HAVE_HPCTOOLIT TRUE)
+    set(CALIPER_HPCToolkit_CMAKE_MSG "Yes, using ${HPCTOOLKIT_LIBRARIES}")
+    list(APPEND CALIPER_EXTERNAL_LIBS ${HPCTOOLKIT_LIBRARIES})
+  else()
+    message(WARNING "HPCToolkit support requested but HPCToolkit was not found!\n"
+            "Set HPCTOOLKIT_ROOT to installation path and re-run cmake.")
+  endif()
+endif()
+
 # PGI 17.x has issues with some constexpr constructors
 if(CMAKE_CXX_COMPILER_ID MATCHES PGI)
   set(CALIPER_REDUCED_CONSTEXPR_USAGE TRUE)
@@ -583,7 +596,8 @@ set(CALIPER_MODULES
   histogram
   variorum
   umpire
-  CrayPAT)
+  CrayPAT
+  HPCToolkit)
 
 foreach(_caliper_module ${CALIPER_MODULES})
   string(LENGTH "${_caliper_module}" _strlen)
