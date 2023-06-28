@@ -16,15 +16,34 @@ namespace cali
 
 class HPCToolkitBinding : public AnnotationBinding
 {
-public:
-    const char* service_tag() const { return "hpctoolkit"; }
+    unsigned int m_stack_size { 0 };
 
-    void on_begin(Caliper*, Channel*, const Attribute&, const Variant&) {
-        hpctoolkit_sampling_start();
+public:
+    const char* service_tag() const override { return "hpctoolkit"; }
+
+    void on_begin(Caliper*, Channel*, const Attribute&, const Variant&) override {
+        if (attr.is_nested()) {
+            ++m_stack_size;
+            hpctoolkit_sampling_start();
+        }
+        else {
+
+        }
     }
 
-    void on_end(Caliper*, Channel*, const Attribute&, const Variant&) {
-        hpctoolkit_sampling_stop();
+    void on_end(Caliper*, Channel*, const Attribute&, const Variant&) override {
+        if (attr.is_nested()) {
+            hpctoolkit_sampling_stop();
+            --m_stack_size;
+
+            if (m_stack_size < 0) {
+                ++m_num_stack_errors;
+
+            }
+        }
+        else {
+
+        }
     }
 };
 
